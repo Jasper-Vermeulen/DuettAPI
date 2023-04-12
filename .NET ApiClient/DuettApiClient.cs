@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
@@ -126,38 +127,15 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 201)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<Carrier>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            return objectResponse_.Object;
-                        }
-                        else if (status_ == 400)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Bad Request", status_, objectResponse_.Text,
-                                headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.Created:
+                                return (await ReadAndNullcheckObjectResponseAsync<Carrier>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false)).Object;
+                            case HttpStatusCode.BadRequest:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -228,42 +206,16 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 404)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
-                        }
-                        else if (status_ == 400)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Bad Request", status_, objectResponse_.Text,
-                                headers_, objectResponse_.Object, null);
-                        }
-                        else if (status_ == 200)
-                        {
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.OK:
+                                break;
+                            case HttpStatusCode.NotFound:
+                            case HttpStatusCode.BadRequest:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -343,38 +295,15 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 404)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
-                        }
-                        else if (status_ == 200)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<CarrierType>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            return objectResponse_.Object;
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.OK:
+                                return (await ReadAndNullcheckObjectResponseAsync<CarrierType>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false)).Object;
+                            case HttpStatusCode.NotFound:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -451,42 +380,16 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 400)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Bad Request", status_, objectResponse_.Text,
-                                headers_, objectResponse_.Object, null);
-                        }
-                        else if (status_ == 404)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
-                        }
-                        else if (status_ == 204)
-                        {
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.NoContent:
+                                break;
+                            case HttpStatusCode.BadRequest:
+                            case HttpStatusCode.NotFound:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -562,42 +465,16 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 204)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                        }
-                        else if (status_ == 404)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
-                        }
-                        else if (status_ == 400)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Bad Request", status_, objectResponse_.Text,
-                                headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.NoContent:
+                                break;
+                            case HttpStatusCode.NotFound:
+                            case HttpStatusCode.BadRequest:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -681,38 +558,15 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 404)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
-                        }
-                        else if (status_ == 200)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ICollection<CarrierType>>(response_, headers_,
-                                    cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            return objectResponse_.Object;
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.OK:
+                                return (await ReadAndNullcheckObjectResponseAsync<ICollection<CarrierType>>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false)).Object;
+                            case HttpStatusCode.NotFound:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -783,38 +637,15 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 201)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<CarrierType>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            return objectResponse_.Object;
-                        }
-                        else if (status_ == 400)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Bad Request", status_, objectResponse_.Text,
-                                headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.Created:
+                                return (await ReadAndNullcheckObjectResponseAsync<CarrierType>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false)).Object;
+                            case HttpStatusCode.BadRequest:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -885,42 +716,16 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 404)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
-                        }
-                        else if (status_ == 400)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Bad Request", status_, objectResponse_.Text,
-                                headers_, objectResponse_.Object, null);
-                        }
-                        else if (status_ == 200)
-                        {
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.OK:
+                                break;
+                            case HttpStatusCode.NotFound:
+                            case HttpStatusCode.BadRequest:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>("Error", (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -1005,38 +810,15 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 404)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
-                        }
-                        else if (status_ == 200)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<Customer>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            return objectResponse_.Object;
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.OK:
+                                return (await ReadAndNullcheckObjectResponseAsync<Customer>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false)).Object;
+                            case HttpStatusCode.NotFound:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -1112,42 +894,16 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 400)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Bad Request", status_, objectResponse_.Text,
-                                headers_, objectResponse_.Object, null);
-                        }
-                        else if (status_ == 404)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
-                        }
-                        else if (status_ == 204)
-                        {
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.NoContent:
+                                break;
+                            case HttpStatusCode.BadRequest:
+                            case HttpStatusCode.NotFound:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -1223,42 +979,16 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 204)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                        }
-                        else if (status_ == 404)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
-                        }
-                        else if (status_ == 400)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Bad Request", status_, objectResponse_.Text,
-                                headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.NoContent:
+                                break;
+                            case HttpStatusCode.NotFound:
+                            case HttpStatusCode.BadRequest:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -1348,38 +1078,15 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 404)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
-                        }
-                        else if (status_ == 200)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ICollection<Customer>>(response_, headers_,
-                                    cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            return objectResponse_.Object;
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.OK:
+                                return (await ReadAndNullcheckObjectResponseAsync<ICollection<Customer>>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false)).Object;
+                            case HttpStatusCode.NotFound:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -1450,38 +1157,15 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 201)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<Customer>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            return objectResponse_.Object;
-                        }
-                        else if (status_ == 400)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Bad Request", status_, objectResponse_.Text,
-                                headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.Created:
+                                return (await ReadAndNullcheckObjectResponseAsync<Customer>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false)).Object;
+                            case HttpStatusCode.BadRequest:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -1552,42 +1236,16 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 404)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
-                        }
-                        else if (status_ == 400)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Bad Request", status_, objectResponse_.Text,
-                                headers_, objectResponse_.Object, null);
-                        }
-                        else if (status_ == 200)
-                        {
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.OK:
+                                break;
+                            case HttpStatusCode.NotFound:
+                            case HttpStatusCode.BadRequest:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -1667,38 +1325,15 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 404)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
-                        }
-                        else if (status_ == 200)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<HourRegistration>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            return objectResponse_.Object;
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.OK:
+                                return (await ReadAndNullcheckObjectResponseAsync<HourRegistration>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false)).Object;
+                            case HttpStatusCode.NotFound:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -1775,42 +1410,16 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 400)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Bad Request", status_, objectResponse_.Text,
-                                headers_, objectResponse_.Object, null);
-                        }
-                        else if (status_ == 404)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
-                        }
-                        else if (status_ == 204)
-                        {
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.NoContent:
+                                break;
+                            case HttpStatusCode.BadRequest:
+                            case HttpStatusCode.NotFound:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -1886,42 +1495,16 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 204)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                        }
-                        else if (status_ == 404)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
-                        }
-                        else if (status_ == 400)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Bad Request", status_, objectResponse_.Text,
-                                headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.NoContent:
+                                break;
+                            case HttpStatusCode.NotFound:
+                            case HttpStatusCode.BadRequest:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -2005,38 +1588,15 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 404)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
-                        }
-                        else if (status_ == 200)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ICollection<HourRegistration>>(response_, headers_,
-                                    cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            return objectResponse_.Object;
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.OK:
+                                return (await ReadAndNullcheckObjectResponseAsync<ICollection<HourRegistration>>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false)).Object;
+                            case HttpStatusCode.NotFound:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -2108,38 +1668,15 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 201)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<HourRegistration>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            return objectResponse_.Object;
-                        }
-                        else if (status_ == 400)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Bad Request", status_, objectResponse_.Text,
-                                headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.Created:
+                                return (await ReadAndNullcheckObjectResponseAsync<HourRegistration>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false)).Object;
+                            case HttpStatusCode.BadRequest:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -2219,38 +1756,15 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 404)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
-                        }
-                        else if (status_ == 200)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<HourRegistrationDocument>(response_, headers_,
-                                    cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            return objectResponse_.Object;
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.OK:
+                                return (await ReadAndNullcheckObjectResponseAsync<HourRegistrationDocument>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false)).Object;
+                            case HttpStatusCode.NotFound:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -2321,38 +1835,15 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 201)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<string>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            return objectResponse_.Object;
-                        }
-                        else if (status_ == 400)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Bad Request", status_, objectResponse_.Text,
-                                headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.Created:
+                                return (await ReadAndNullcheckObjectResponseAsync<string>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false)).Object;
+                            case HttpStatusCode.BadRequest:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -2423,42 +1914,16 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 404)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
-                        }
-                        else if (status_ == 400)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Bad Request", status_, objectResponse_.Text,
-                                headers_, objectResponse_.Object, null);
-                        }
-                        else if (status_ == 200)
-                        {
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.OK:
+                                break;
+                            case HttpStatusCode.NotFound:
+                            case HttpStatusCode.BadRequest:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -2537,38 +2002,15 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 404)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
-                        }
-                        else if (status_ == 200)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<Project>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            return objectResponse_.Object;
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.OK:
+                                return (await ReadAndNullcheckObjectResponseAsync<Project>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false)).Object;
+                            case HttpStatusCode.NotFound:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -2645,42 +2087,16 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 400)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Bad Request", status_, objectResponse_.Text,
-                                headers_, objectResponse_.Object, null);
-                        }
-                        else if (status_ == 404)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
-                        }
-                        else if (status_ == 204)
-                        {
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.NoContent:
+                                break;
+                            case HttpStatusCode.BadRequest:
+                            case HttpStatusCode.NotFound:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -2756,42 +2172,16 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 204)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                        }
-                        else if (status_ == 404)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
-                        }
-                        else if (status_ == 400)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Bad Request", status_, objectResponse_.Text,
-                                headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.NoContent:
+                                break;
+                            case HttpStatusCode.NotFound:
+                            case HttpStatusCode.BadRequest:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -2875,38 +2265,15 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 404)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
-                        }
-                        else if (status_ == 200)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ICollection<Project>>(response_, headers_,
-                                    cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            return objectResponse_.Object;
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.OK:
+                                return (await ReadAndNullcheckObjectResponseAsync<ICollection<Project>>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false)).Object;
+                            case HttpStatusCode.NotFound:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -2977,38 +2344,15 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 201)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<Project>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            return objectResponse_.Object;
-                        }
-                        else if (status_ == 400)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Bad Request", status_, objectResponse_.Text,
-                                headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.Created:
+                                return (await ReadAndNullcheckObjectResponseAsync<Project>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false)).Object;
+                            case HttpStatusCode.BadRequest:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -3080,42 +2424,16 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 404)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
-                        }
-                        else if (status_ == 400)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Bad Request", status_, objectResponse_.Text,
-                                headers_, objectResponse_.Object, null);
-                        }
-                        else if (status_ == 200)
-                        {
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.OK:
+                                break;
+                            case HttpStatusCode.NotFound:
+                            case HttpStatusCode.BadRequest:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -3192,42 +2510,16 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 400)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Bad Request", status_, objectResponse_.Text,
-                                headers_, objectResponse_.Object, null);
-                        }
-                        else if (status_ == 404)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
-                        }
-                        else if (status_ == 204)
-                        {
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.NoContent:
+                                break;
+                            case HttpStatusCode.BadRequest:
+                            case HttpStatusCode.NotFound:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -3303,42 +2595,16 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 204)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                        }
-                        else if (status_ == 404)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
-                        }
-                        else if (status_ == 400)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Bad Request", status_, objectResponse_.Text,
-                                headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.NoContent:
+                                break;
+                            case HttpStatusCode.NotFound:
+                            case HttpStatusCode.BadRequest:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -3422,38 +2688,15 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 404)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
-                        }
-                        else if (status_ == 200)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ICollection<Article>>(response_, headers_,
-                                    cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            return objectResponse_.Object;
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.OK:
+                                return (await ReadAndNullcheckObjectResponseAsync<ICollection<Article>>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false)).Object;
+                            case HttpStatusCode.NotFound:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -3524,38 +2767,15 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 201)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<Article>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            return objectResponse_.Object;
-                        }
-                        else if (status_ == 400)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Bad Request", status_, objectResponse_.Text,
-                                headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.Created:
+                                return (await ReadAndNullcheckObjectResponseAsync<Article>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false)).Object;
+                            case HttpStatusCode.BadRequest:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -3626,42 +2846,16 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 404)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
-                        }
-                        else if (status_ == 400)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Bad Request", status_, objectResponse_.Text,
-                                headers_, objectResponse_.Object, null);
-                        }
-                        else if (status_ == 200)
-                        {
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.OK:
+                                break;
+                            case HttpStatusCode.NotFound:
+                            case HttpStatusCode.BadRequest:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -3741,38 +2935,15 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 404)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
-                        }
-                        else if (status_ == 200)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<Carrier>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            return objectResponse_.Object;
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.OK:
+                                return (await ReadAndNullcheckObjectResponseAsync<Carrier>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false)).Object;
+                            case HttpStatusCode.NotFound:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -3849,42 +3020,16 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 400)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Bad Request", status_, objectResponse_.Text,
-                                headers_, objectResponse_.Object, null);
-                        }
-                        else if (status_ == 404)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
-                        }
-                        else if (status_ == 204)
-                        {
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.NoContent:
+                                break;
+                            case HttpStatusCode.BadRequest:
+                            case HttpStatusCode.NotFound:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -3960,42 +3105,16 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 204)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                        }
-                        else if (status_ == 404)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
-                        }
-                        else if (status_ == 400)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Bad Request", status_, objectResponse_.Text,
-                                headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.NoContent:
+                                break;
+                            case HttpStatusCode.NotFound:
+                            case HttpStatusCode.BadRequest:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -4078,38 +3197,15 @@ namespace Duett
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = (int) response_.StatusCode;
-                        if (status_ == 404)
+                        var status_ = response_.StatusCode;
+                        switch (status_)
                         {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
-                        }
-                        else if (status_ == 200)
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ICollection<Carrier>>(response_, headers_,
-                                    cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            return objectResponse_.Object;
-                        }
-                        else
-                        {
-                            var objectResponse_ =
-                                await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken)
-                                    .ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                                throw new ApiException("Response was null which was not expected.", status_,
-                                    objectResponse_.Text, headers_, null);
-                            throw new ApiException<ProblemDetails>("Error", status_, objectResponse_.Text, headers_,
-                                objectResponse_.Object, null);
+                            case HttpStatusCode.OK:
+                                return (await ReadAndNullcheckObjectResponseAsync<ICollection<Carrier>>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false)).Object;
+                            case HttpStatusCode.NotFound:
+                            default:
+                                var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
+                                throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                     }
                     finally
@@ -4124,6 +3220,14 @@ namespace Duett
                 if (disposeClient_)
                     client_.Dispose();
             }
+        }
+
+        private async Task<ObjectResponseResult<T>> ReadAndNullcheckObjectResponseAsync<T>(HttpResponseMessage response_, Dictionary<string, IEnumerable<string>> headers_, int status_, CancellationToken cancellationToken)
+        {
+            var objectResponse_ = await ReadObjectResponseAsync<T>(response_, headers_, cancellationToken).ConfigureAwait(false);
+            if (objectResponse_.Object == null)
+                throw new ApiException("Response was null which was not expected.", (int)status_, objectResponse_.Text, headers_, null);
+            return objectResponse_;
         }
 
         protected virtual async Task<ObjectResponseResult<T>> ReadObjectResponseAsync<T>(HttpResponseMessage response,
@@ -4142,7 +3246,7 @@ namespace Duett
                 catch (JsonException exception)
                 {
                     var message = "Could not deserialize the response body string as " + typeof(T).FullName + ".";
-                    throw new ApiException(message, (int) response.StatusCode, responseText, headers, exception);
+                    throw new ApiException(message, (int)response.StatusCode, responseText, headers, exception);
                 }
             }
 
@@ -4160,7 +3264,7 @@ namespace Duett
             catch (JsonException exception)
             {
                 var message = "Could not deserialize the response body stream as " + typeof(T).FullName + ".";
-                throw new ApiException(message, (int) response.StatusCode, string.Empty, headers, exception);
+                throw new ApiException(message, (int)response.StatusCode, string.Empty, headers, exception);
             }
         }
 
@@ -4188,15 +3292,15 @@ namespace Duett
             }
             else if (value is bool)
             {
-                return Convert.ToString((bool) value, cultureInfo).ToLowerInvariant();
+                return Convert.ToString((bool)value, cultureInfo).ToLowerInvariant();
             }
             else if (value is byte[])
             {
-                return Convert.ToBase64String((byte[]) value);
+                return Convert.ToBase64String((byte[])value);
             }
             else if (value.GetType().IsArray)
             {
-                var array = Enumerable.OfType<object>((Array) value);
+                var array = Enumerable.OfType<object>((Array)value);
                 return string.Join(",", Enumerable.Select(array, o => ConvertToString(o, cultureInfo)));
             }
 
