@@ -211,8 +211,8 @@ namespace Duett
                         {
                             case HttpStatusCode.OK:
                                 break;
-                            case HttpStatusCode.NotFound:
                             case HttpStatusCode.BadRequest:
+                            case HttpStatusCode.NotFound:
                             default:
                                 var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
                                 throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
@@ -470,8 +470,8 @@ namespace Duett
                         {
                             case HttpStatusCode.NoContent:
                                 break;
-                            case HttpStatusCode.NotFound:
                             case HttpStatusCode.BadRequest:
+                            case HttpStatusCode.NotFound:
                             default:
                                 var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
                                 throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
@@ -721,8 +721,8 @@ namespace Duett
                         {
                             case HttpStatusCode.OK:
                                 break;
-                            case HttpStatusCode.NotFound:
                             case HttpStatusCode.BadRequest:
+                            case HttpStatusCode.NotFound:
                             default:
                                 var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
                                 throw new ApiException<ProblemDetails>("Error", (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
@@ -984,8 +984,8 @@ namespace Duett
                         {
                             case HttpStatusCode.NoContent:
                                 break;
-                            case HttpStatusCode.NotFound:
                             case HttpStatusCode.BadRequest:
+                            case HttpStatusCode.NotFound:
                             default:
                                 var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
                                 throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
@@ -1241,8 +1241,8 @@ namespace Duett
                         {
                             case HttpStatusCode.OK:
                                 break;
-                            case HttpStatusCode.NotFound:
                             case HttpStatusCode.BadRequest:
+                            case HttpStatusCode.NotFound:
                             default:
                                 var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
                                 throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
@@ -1500,8 +1500,8 @@ namespace Duett
                         {
                             case HttpStatusCode.NoContent:
                                 break;
-                            case HttpStatusCode.NotFound:
                             case HttpStatusCode.BadRequest:
+                            case HttpStatusCode.NotFound:
                             default:
                                 var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
                                 throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
@@ -1919,8 +1919,8 @@ namespace Duett
                         {
                             case HttpStatusCode.OK:
                                 break;
-                            case HttpStatusCode.NotFound:
                             case HttpStatusCode.BadRequest:
+                            case HttpStatusCode.NotFound:
                             default:
                                 var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
                                 throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
@@ -2177,8 +2177,8 @@ namespace Duett
                         {
                             case HttpStatusCode.NoContent:
                                 break;
-                            case HttpStatusCode.NotFound:
                             case HttpStatusCode.BadRequest:
+                            case HttpStatusCode.NotFound:
                             default:
                                 var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
                                 throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
@@ -2429,8 +2429,8 @@ namespace Duett
                         {
                             case HttpStatusCode.OK:
                                 break;
-                            case HttpStatusCode.NotFound:
                             case HttpStatusCode.BadRequest:
+                            case HttpStatusCode.NotFound:
                             default:
                                 var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
                                 throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
@@ -2600,8 +2600,8 @@ namespace Duett
                         {
                             case HttpStatusCode.NoContent:
                                 break;
-                            case HttpStatusCode.NotFound:
                             case HttpStatusCode.BadRequest:
+                            case HttpStatusCode.NotFound:
                             default:
                                 var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
                                 throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
@@ -2851,8 +2851,8 @@ namespace Duett
                         {
                             case HttpStatusCode.OK:
                                 break;
-                            case HttpStatusCode.NotFound:
                             case HttpStatusCode.BadRequest:
+                            case HttpStatusCode.NotFound:
                             default:
                                 var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
                                 throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
@@ -3110,8 +3110,8 @@ namespace Duett
                         {
                             case HttpStatusCode.NoContent:
                                 break;
-                            case HttpStatusCode.NotFound:
                             case HttpStatusCode.BadRequest:
+                            case HttpStatusCode.NotFound:
                             default:
                                 var objectResponse_ = await ReadAndNullcheckObjectResponseAsync<ProblemDetails>(response_, headers_, (int)status_, cancellationToken).ConfigureAwait(false);
                                 throw new ApiException<ProblemDetails>(status_.ToString(), (int)status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
